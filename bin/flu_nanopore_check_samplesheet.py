@@ -111,6 +111,13 @@ def main(input_path: Path, platform: str, output_sample_sheet: Path):
         df.to_csv(output_sample_sheet, index=False)
         logging.info(f'Wrote reformatted sample sheet CSV to "{output_sample_sheet}"')
 
+    elif platform == "rsv_nanopore":
+        assert df.shape[1] == 2, f"2 columns expected in sample sheet, but {df.shape[1]} found!"
+        df.columns = ["sample", "barcode"]
+        check_sample_names(df)
+        df.to_csv(output_sample_sheet, index=False)
+        logging.info(f'Wrote reformatted sample sheet CSV to "{output_sample_sheet}"')
+
 
 if __name__ == "__main__":
     typer.run(main)

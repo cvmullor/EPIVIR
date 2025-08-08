@@ -1,9 +1,13 @@
 process IRMA {
     tag "$meta.id"
     label 'process_high'
+    
+    """
+    # container 'cdcgov/irma:v1.2.0'
+    """
 
-    container 'cdcgov/irma:v1.2.0'
-
+    container 'cdcgov/irma:v1.3.0-rc1'
+    
     input:
     tuple val(meta), path(reads)
     val(irma_module)
@@ -47,12 +51,25 @@ process IRMA {
         echo 'ALIGN_PROG="BLAT"' >> irma_config.sh
     fi
 
+    ## FIX START <<< ERROR 250502 14:53 en 250425_EPIM199rep >>>
+    # ALIGN_AMENDED=1 (para que IRMA haga alineamiento y permita generar .pad.fa)
+    # PADDED_CONSENSUS=1 (para que las regiones sin cobertura se rellenen con N, sin usar -)
+    # (MÁS ABAJO) Redirección del .pad.fa limpio a irma.consensus.fasta, evitando el uso de .fasta con guiones
+    #echo 'ALIGN_AMENDED=1' >> irma_config.sh
+    #echo 'PADDED_CONSENSUS=1' >> irma_config.sh
+    #echo 'ASSEM_REF=1' >> irma_config.sh
+    ## FIX END
+
     # Execute IRMA with specified module and input reads
-    IRMA $irma_module $reads $meta.id
+    IRMA $irma_module $reads $meta.id --external-config /home/redvigilancia/analyses_rv/iras/FLU_custom/init.sh
 
     # Check and aggregate output IRMA consensus fasta if they exist
     if [ -d "${prefix}" ] && [ -n "\$(ls -A "${prefix}"/*.fasta)" ]; then
+        ## FIX START <<< ERROR 250502 14:53 en 250425_EPIM199rep >>>
         cat "${prefix}"/*.fasta > "${prefix}.irma.consensus.fasta"
+        #cat "${prefix}"/*.pad.fa > "${prefix}.irma.consensus.fasta"
+        # Redirección del .pad.fa limpio a irma.consensus.fasta, evitando el uso de .fasta con guiones
+        ## FIX END
     else
         echo "No consensus fasta due to a low abundance of read patterns per gene segment" > "${prefix}_LOW_ABUNDANCE"
         cat "${prefix}_LOW_ABUNDANCE" > "${prefix}_LOW_ABUNDANCE.txt"
@@ -112,5 +129,3 @@ process IRMA {
     END_VERSIONS
     """
 }
-
-

@@ -43,9 +43,13 @@ if (params.platform == 'flu_illumina') {
     include { RSV_ILLUMINA } from './workflows/rsv_illumina'
     println "Running rsv_illumina platform for clinical RSV samples with IRMA: Iterative Refinement Meta-Assembler."
 
+} else if (params.platform == 'rsv_nanopore') {
+    include { RSV_NANOPORE } from './workflows/rsv_nanopore'
+    println "Running rsv_nanopore platform for clinical RSV samples with IRMA: Iterative Refinement Meta-Assembler."
+
 } else {
     // Default case if none of the options match
-    println "Unknown platform! Please choose a valid option from --platform flu_illumina, flu_nanopore, flu_ww_illumina, flu_ww_nanopore, or rsv_illumina."
+    println "Unknown platform! Please choose a valid option from --platform flu_illumina, flu_nanopore, flu_ww_illumina, flu_ww_nanopore, rsv_illumina, or rsv_nanopore."
     exit 1
 }
 
@@ -83,6 +87,13 @@ workflow NFCORE_WALKERCREEK {
     //
     } else if (params.platform == 'rsv_illumina') {
         RSV_ILLUMINA ()
+
+    //
+    // WORKFLOW: Run main walkercreek-EPIVIR rsv_nanopore analysis pipeline
+    //
+    } else if (params.platform == 'rsv_nanopore') {
+        RSV_NANOPORE ()
+
     }
 }
 

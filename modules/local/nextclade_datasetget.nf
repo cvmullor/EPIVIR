@@ -2,9 +2,8 @@ process NEXTCLADE_DATASETGET {
     tag "$meta.id"
     label 'process_low'
 
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/nextclade:3.1.0--h9ee0642_0' :
-        'quay.io/biocontainers/nextclade:3.1.0--h9ee0642_0' }"
+    container = null
+    executor = 'local'
 
     input:
     tuple val(meta), path(dataset)

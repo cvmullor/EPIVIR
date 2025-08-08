@@ -41,7 +41,7 @@ workflow LONGREAD_PREPROCESSING {
 
     BBDUK_NANOPORE_PRIMERS (ch_all_reads, primers)
     ch_bbduk_reads = BBDUK_NANOPORE_PRIMERS.out.clean_reads
-    ch_versions = ch_versions.mix(BBMAP_BBDUK_NANOPORE.out.versions)
+    ch_versions = ch_versions.mix(BBDUK_NANOPORE_PRIMERS.out.versions)
 
     if (params.longread_adaptertrimming_tool && params.longread_adaptertrimming_tool == 'porechop_abi') {
         PORECHOP_ABI ( ch_bbduk_reads )

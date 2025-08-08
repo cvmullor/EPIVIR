@@ -2,7 +2,11 @@ process IRMA_RSV {
     tag "$meta.id"
     label 'process_high'
 
-    container 'cdcgov/irma:v1.2.0'
+    """
+    #container 'cdcgov/irma:v1.2.0'
+    """
+
+    container 'cdcgov/irma:v1.3.0-rc1'
 
     input:
     tuple val(meta), path(reads)

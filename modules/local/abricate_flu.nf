@@ -80,8 +80,8 @@ process ABRICATE_FLU {
             (grep -q "Victoria" ${meta.id}_abricate_hits.tsv && grep -q "neuraminidase" ${meta.id}_abricate_hits.tsv); then
             echo "Victoria" > $abricate_subtype
         # Check for Yamagata with hemagglutinin or neuraminidase or both
-        elif (grep -q "Yamagata" ${meta.id}_abricate_hits.tsv && grep -q "hemagglutinin" ${meta.id}_abricate_hits.tsv) || \
-            (grep -q "Yamagata" ${meta.id}_abricate_hits.tsv && grep -q "neuraminidase" ${meta.id}_abricate_hits.tsv); then
+        elif (grep -q "Yamagata" ${meta.id}_abricate_hits.tsv && grep -q "B_HA" ${meta.id}_abricate_hits.tsv) || \
+            (grep -q "Yamagata" ${meta.id}_abricate_hits.tsv && grep -q "B_NA" ${meta.id}_abricate_hits.tsv); then
             echo "Yamagata" > $abricate_subtype
         else
             echo "No abricate subtype" > $abricate_subtype
@@ -122,8 +122,8 @@ process ABRICATE_FLU {
             (grep -q "Victoria" ${meta.id}_abricate_hits.tsv && grep -q "neuraminidase" ${meta.id}_abricate_hits.tsv); then
             echo "Victoria" > $abricate_subtype
     # Yamagata
-        elif (grep -q "Yamagata" ${meta.id}_abricate_hits.tsv && grep -q "hemagglutinin" ${meta.id}_abricate_hits.tsv) || \
-            (grep -q "Yamagata" ${meta.id}_abricate_hits.tsv && grep -q "neuraminidase" ${meta.id}_abricate_hits.tsv); then
+        elif (grep -q "Yamagata" ${meta.id}_abricate_hits.tsv && grep -q "B_HA" ${meta.id}_abricate_hits.tsv) || \
+            (grep -q "Yamagata" ${meta.id}_abricate_hits.tsv && grep -q "B_NA" ${meta.id}_abricate_hits.tsv); then
             echo "Yamagata" > $abricate_subtype
         else
             echo "No abricate subtype" > $abricate_subtype

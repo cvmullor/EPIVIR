@@ -35,6 +35,7 @@ process FAQCS {
             -u ${prefix}.fastq.gz \\
             --prefix ${prefix} \\
             -t $task.cpus \\
+            --ascii 33 \\
             $args \\
             2> ${prefix}.fastp.log
 
@@ -62,6 +63,7 @@ process FAQCS {
             -2 ${prefix}_2.fastq.gz \\
             --prefix ${meta.id} \\
             -t $task.cpus \\
+            --ascii 33 \\
             $args \\
             2> ${prefix}.fastp.log
 

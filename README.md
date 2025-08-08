@@ -9,6 +9,8 @@ This fork has been adapted for **genomic surveillance of acute respiratory infec
 The original project is licensed under the [MIT License](https://opensource.org/licenses/MIT).  
 Please see the [`LICENSE`](LICENSE) file for full licensing details.
 
+---
+
 
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A522.10.1-23aa62.svg)](https://www.nextflow.io/)
 

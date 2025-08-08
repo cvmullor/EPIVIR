@@ -61,7 +61,8 @@ process IRMA {
     ## FIX END
 
     # Execute IRMA with specified module and input reads
-    IRMA $irma_module $reads $meta.id --external-config /home/redvigilancia/analyses_rv/iras/FLU_custom/init.sh
+    #IRMA $irma_module $reads $meta.id --external-config $PWD/EPIVIR/irma_conf/init.sh
+    IRMA $irma_module $reads $meta.id
 
     # Check and aggregate output IRMA consensus fasta if they exist
     if [ -d "${prefix}" ] && [ -n "\$(ls -A "${prefix}"/*.fasta)" ]; then

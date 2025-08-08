@@ -1,3 +1,15 @@
+## 🔁 About this fork
+
+This repository is a fork of [**walkercreek**](https://github.com/UPHL-BioNGS/walkercreek), developed by Tom Iverson ([@tives82](https://github.com/tives82)) and contributors.
+
+*walkercreek* is a Nextflow pipeline designed to accommodate different sequencing technologies (Illumina or Nanopore), sample types (clinical or wastewater), and viral targets (Influenza or RSV).
+
+This fork has been adapted for **genomic surveillance of acute respiratory infections (ARIs) in the Comunitat Valenciana, Spain**.
+
+The original project is licensed under the [MIT License](https://opensource.org/licenses/MIT).  
+Please see the [`LICENSE`](LICENSE) file for full licensing details.
+
+
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A522.10.1-23aa62.svg)](https://www.nextflow.io/)
 
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)

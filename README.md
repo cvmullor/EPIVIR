@@ -2,7 +2,7 @@
 
 *Pipeline* para la vigilancia genómica de las infecciones respiratorias agudas (IRAs) en la Comunitat Valenciana, diseñado para el análisis de diferentes organismos (gripe, VRS) y tecnologías de secuenciación (Illumina, Oxford Nanopore)
 
-**EPIVIR** es una adaptación del *pipeline* **walkercreek**. Para más información sobre este y las modificaciones que se han implementado, consultar la sección [**About this fork**](https://github.com/cvmullor/EPIVIR/tree/master?tab=readme-ov-file#-about-this-fork).
+**EPIVIR** es una adaptación del *pipeline* **walkercreek**. Para más información sobre este y las modificaciones que se han implementado, consultar la sección [About this fork](https://github.com/cvmullor/EPIVIR/tree/master?tab=readme-ov-file#-about-this-fork).
 
 ---
 

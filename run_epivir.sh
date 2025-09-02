@@ -43,10 +43,7 @@ if [[ "$run_epivir" == "true" ]]; then
 		--outdir ${basedir}/${run}
 
 	# Generar reporte
-	if [[ "$platform" == "illumina" ]]; then
-
-		Rscript ${epidir}/custom_report.R ${virus} ${run} ${basedir} ${epidir} ${workdir}
-
-	fi
+	Rscript ${epidir}/custom_report.R ${virus} ${platform} ${run} ${basedir} ${epidir} ${workdir}
+	
 fi
 

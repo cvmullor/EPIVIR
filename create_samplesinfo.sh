@@ -1,35 +1,58 @@
 #!/bin/bash
 
-# Generar tabla CSV 'samplesinfo' a partir de directorio con fastq illumina
-
-# Uso: ./generate_sample_table.sh /ruta/al/directorio_fastq[/]
+# Generar tabla CSV 'samplesinfo' a partir de directorio con fastq
+# Compatible con Illumina (PE) y Nanopore
+#
+# Uso:
+#   ./generate_sample_table.sh <directorio_fastq> <plataforma>
+#   plataforma = illumina | nanopore
 
 indir="$1"
+platform="$2"
 
-if [[ -z "$indir" ]]; then
-  echo "Uso: $0 <directorio_con_fastq>" >&2
+if [[ -z "$indir" || -z "$platform" ]]; then
+  echo "Uso: $0 <directorio_con_fastq> <illumina|nanopore>" >&2
   exit 1
 fi
 
-# Encabezado
-echo -e "sample,fastq1,fastq2" > samplesinfo.csv
+# Normalizar ruta (quitar // dobles)
+indir=$(echo "$indir" | sed 's|//*|/|g')
 
-# Buscar R1 y emparejar con R2
-for r1 in "$indir"/*_R1_*.fastq.gz; do
-  # Obtener nombre base sin ruta
-  base=$(basename "$r1")
-  
-  # Extraer el ID de muestra (antes del primer "_")
-  sample_id="${base%%_*}"
+# Illumina
+if [[ "$platform" == "illumina" ]]; then
+  echo -e "sample,fastq1,fastq2" > samplesinfo.csv
 
-  # Generar nombre del R2 esperado
-  r2="${r1/_R1_/_R2_}"
+  for r1 in "$indir"/*_R1_*.fastq.gz; do
+    # Evitar glob vacío
+    [[ -e "$r1" ]] || continue
+    
+    base=$(basename "$r1")
+    sample_id="${base%%_*}"
+    r2="${r1/_R1_/_R2_}"
 
-  # Verificar que el archivo R2 existe y completar tabla
-  if [[ -f "$r2" ]]; then
-    echo -e "${sample_id},${r1},${r2}" | sed 's|\/\/|\/|g' >> samplesinfo.csv
-  else
-    echo "⚠️  Advertencia: no se encontró R2 para $r1" >&2
-  fi
-done
+    if [[ -f "$r2" ]]; then
+      echo -e "${sample_id},${r1},${r2}" | sed 's|//*|/|g' >> samplesinfo.csv
+    else
+      echo "⚠️  Advertencia: no se encontró R2 para $r1" >&2
+    fi
+  done
+
+# Nanopore
+elif [[ "$platform" == "nanopore" ]]; then
+  echo -e "sample,fastq" > samplesinfo.csv
+
+  for fq in "$indir"/*.fastq.gz; do
+    [[ -e "$fq" ]] || continue
+    
+    base=$(basename "$fq")
+    sample_id="${base%%.*}"
+    echo -e "${sample_id},${fq}" | sed 's|//*|/|g' >> samplesinfo.csv
+  done
+
+else
+  echo "Plataforma no reconocida: $platform. Usa 'illumina' o 'nanopore'." >&2
+  exit 1
+fi
+
+echo "Tabla generada: samplesinfo.csv"
 

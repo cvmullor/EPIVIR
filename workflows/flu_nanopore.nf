@@ -71,6 +71,60 @@ workflow FLU_NANOPORE {
     ch_all_reads        = Channel.empty()
     ch_for_summary      = Channel.empty()
 
+
+
+
+    // Set up for kraken2 database parsing
+    // Ensure the kraken2 database directories exist, if not, create them
+    if (!new File(params.project_db_dir).exists()) {
+        new File(params.project_db_dir).mkdirs()
+    }
+    // Create kraken_db directory for untarring kraken 2 db
+    if (!new File(params.kraken_db_dir).exists()) {
+        new File(params.kraken_db_dir).mkdirs()
+    }
+
+    // Define paths for the Kraken2 database and its extraction directory
+    db_file_path = "${params.project_db_dir}/${params.krakendb.split('/').last()}"
+    untar_dir = "${params.kraken_db_dir}/${params.krakendb.split('/').last().replace('.tar.gz', '')}"
+
+    ch_krakendb = Channel.empty()
+
+    // Handle kraken2 database: check its existence, download if necessary, and unpack it
+    if (!params.skip_kraken2) {
+        // If the database is provided as a compressed file
+        if (params.krakendb.endsWith('.tar.gz')) {
+            def untarDirFile = new File(params.kraken_db_dir)
+            // Ensure that a version of the database doesn't already exist, if it does, clean it up
+            if (untarDirFile.exists() && untarDirFile.list().length > 0) {
+                println "Kraken 2 database is untarred. Checking for compressed version..."
+                if (file(db_file_path).exists()) {
+                    println "Compressed Kraken 2 database found. Removing to save space..."
+                    file(db_file_path).delete()
+                }
+            } else if (!file(db_file_path).exists()) {
+                println "Kraken 2 database not found locally. Downloading..."
+                "curl -o ${db_file_path} ${params.krakendb}".execute().text
+                println "Untarring the Kraken 2 database locally..."
+                "tar -xzf ${db_file_path} -C ${params.kraken_db_dir}".execute().waitFor()
+                file(db_file_path).delete() // Cleanup the compressed version after untarring
+            } else {
+                println "Untarring the Kraken 2 database locally..."
+                "tar -xzf ${db_file_path} -C ${params.kraken_db_dir}".execute().waitFor()
+                file(db_file_path).delete() // Cleanup the compressed version after untarring
+            }
+            ch_krakendb = params.krakendb ? file(params.kraken_db_dir, checkIfExists: true) : file("$projectDir/data/kraken_db", checkIfExists: true)
+        } else {
+            ch_krakendb = Channel.value(file(params.krakendb))
+        }
+    }
+    // Set the db variable to the kraken2 database channel
+    db = ch_krakendb
+
+
+
+
+
     ch_input = NANOPORE_SAMPLESHEET_CHECK(Channel.fromPath(params.input, checkIfExists: true))
 
     // Split input csv (skip header), map each row to [sample,reads], then group by sample
@@ -164,8 +218,8 @@ workflow FLU_NANOPORE {
 
     primers = params.iims_primers_fasta ? file(params.iims_primers_fasta) : []
 
-    LONGREAD_PREPROCESSING(ch_all_reads, primers)
-    ch_all_reads = ch_all_reads.mix(LONGREAD_PREPROCESSING.out.clean_reads) // Mix the cleaned reads with the main read channel
+    LONGREAD_PREPROCESSING(ch_all_reads, primers, ch_krakendb)
+    ch_all_reads = ch_all_reads.mix(LONGREAD_PREPROCESSING.out.filtered_reads) // Mix the cleaned reads with the main read channel
     ch_versions = ch_versions.mix(LONGREAD_PREPROCESSING.out.versions)
 
     ch_nanoplotlines_raw = LONGREAD_PREPROCESSING.out.raw_nano_lines.collect()
@@ -179,6 +233,19 @@ workflow FLU_NANOPORE {
 
     MERGE_NANO_RAW_FILT (ch_raw_nanoplot_report_tsv, ch_filt_nanoplot_report_tsv)
     ch_nano_reportsheet_tsv = MERGE_NANO_RAW_FILT.out.merged_nano_raw_filt_reportsheet
+
+
+
+    // Conditionally assign ch_kraken2_reportsheet_tsv if kraken2 is not skipped
+    if (params.skip_kraken2 == false) {
+        ch_kraken2_reportsheet_tsv = LONGREAD_PREPROCESSING.out.kraken2_reportsheet_tsv
+    } else {
+    // Placeholder channel for kraken2_reportsheet_tsv if params.skip_kraken2 = true
+    ch_kraken2_reportsheet_tsv = Channel.empty()
+    }
+
+
+
 
     /*
         SUBWORKFLOW: ASSEMBLY_TYPING_CLADE_VARIABLES - assembly, flu typing/subtyping, and Nextclade variable determination based upon flu 'abricate_subtype'
@@ -221,7 +288,7 @@ workflow FLU_NANOPORE {
     //
     // MODULE: Run FastQC
     //
-    FASTQC (LONGREAD_PREPROCESSING.out.clean_reads)
+    FASTQC (LONGREAD_PREPROCESSING.out.filtered_reads)
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     //

@@ -12,6 +12,11 @@ include { BBDUK_NANOPORE_PRIMERS               } from '../../modules/local/bbduk
 include { PORECHOP_PORECHOP                    } from '../../modules/nf-core/porechop/porechop/main'
 include { PORECHOP_ABI                         } from '../../modules/nf-core/porechop/abi/main'
 include { FILTLONG                             } from '../../modules/local/filtlong.nf'
+include { KRAKEN2_KRAKEN2_ONT                  } from '../../modules/local/kraken2_kraken2_ont.nf'
+include { KRAKEN2REPORT_SUMMARY                } from '../../modules/local/kraken2report_summary.nf'
+include { KRAKEN2REPORT_RSV_SUMMARY            } from '../../modules/local/kraken2report_rsv_summary.nf'
+include { KRAKEN2_REPORTSHEET                  } from '../../modules/local/kraken2_reportsheet.nf'
+include { KRAKEN2_REPORTSHEET_RSV              } from '../../modules/local/kraken2_reportsheet_rsv.nf'
 
 /*
 ========================================================================================================
@@ -23,10 +28,15 @@ workflow LONGREAD_PREPROCESSING {
     take:
     ch_all_reads
     primers // params.iims_primers_fasta
+    db // params.krakendb
 
     main:
     ch_versions                = Channel.empty()
     ch_multiqc_files           = Channel.empty()
+
+    ch_kraken2reportsheet      = Channel.empty()
+    kraken2_reportsheet_tsv    = Channel.empty()
+
 
     NANOPLOT_RAW ( ch_all_reads )
     ch_nanoplot_raw = NANOPLOT_RAW.out.txt
@@ -70,11 +80,49 @@ workflow LONGREAD_PREPROCESSING {
     ch_nanoplot_raw_line = NANO_REPORT_RAW.out.raw_nano_line
     ch_nanoplot_filt_line = NANO_REPORT_FILT.out.filt_nano_line
 
+
+    if ( !params.skip_kraken2 ) {
+        KRAKEN2_KRAKEN2_ONT(FILTLONG.out.reads, db, false, true)
+        ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2_ONT.out.versions)
+
+        ch_kraken2report_summary_input = KRAKEN2_KRAKEN2_ONT.out.txt
+        
+        if ( params.platform == "flu_nanopore" ) {
+            KRAKEN2REPORT_SUMMARY(ch_kraken2report_summary_input)
+            ch_kraken2reportsheet = KRAKEN2REPORT_SUMMARY.out.kraken_lines.collect()
+            KRAKEN2_REPORTSHEET(ch_kraken2reportsheet)
+            ch_kraken2_reportsheet_tsv = KRAKEN2_REPORTSHEET.out.kraken2_reportsheet_tsv
+
+            emit:
+            report                     = KRAKEN2_KRAKEN2_ONT.out.report
+            classified_reads           = KRAKEN2_KRAKEN2_ONT.out.classified_reads_assignment
+            kraken_lines               = ch_kraken2reportsheet
+            kraken2_reportsheet_tsv    = KRAKEN2_REPORTSHEET.out.kraken2_reportsheet_tsv
+        }
+
+        else if ( params.platform == "rsv_nanopore" ) {
+            KRAKEN2REPORT_RSV_SUMMARY(ch_kraken2report_summary_input)
+            ch_kraken2reportsheet = KRAKEN2REPORT_RSV_SUMMARY.out.kraken_lines.collect()
+            KRAKEN2_REPORTSHEET_RSV(ch_kraken2reportsheet)
+            ch_kraken2_reportsheet_tsv = KRAKEN2_REPORTSHEET_RSV.out.kraken2_reportsheet_tsv
+
+            emit:
+            report                     = KRAKEN2_KRAKEN2_ONT.out.report
+            classified_reads           = KRAKEN2_KRAKEN2_ONT.out.classified_reads_assignment
+            kraken_lines               = ch_kraken2reportsheet
+            kraken2_reportsheet_tsv    = KRAKEN2_REPORTSHEET_RSV.out.kraken2_reportsheet_tsv
+        }
+    } else {
+        kraken2_reportsheet_tsv = Channel.empty()
+    }
+
+
     emit:
     filtered_reads             = FILTLONG.out.reads
     raw_nano_lines             = ch_nanoplot_raw_line
     filt_nano_lines            = ch_nanoplot_filt_line
     versions                   = ch_versions
     multiqc_files              = ch_multiqc_files
+    kraken2_reportsheet_tsv    = kraken2_reportsheet_tsv
 }
 

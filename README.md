@@ -1,9 +1,16 @@
 # EPIVIR
 
-**EPIVIR** se basa en el pipeline **walkercreek**. Para más información sobre este y las modificaciones que se han implementado, consultar la sección **About this fork**.
+*Pipeline* para la vigilancia genómica de las infecciones respiratorias agudas (IRAs) en la Comunitat Valenciana, diseñado para el análisis de diferentes organismos (gripe, VRS) y tecnologías de secuenciación (Illumina, Oxford Nanopore)
+
+**EPIVIR** es una adaptación del *pipeline* **walkercreek**. Para más información sobre este y las modificaciones que se han implementado, consultar la sección **About this fork**.
+
+---
 
 ## Puesta a punto EPIVIR
 ### Instalación de Conda
+```bash
+[pending]
+```
 
 ### Descargar repositorio
 ```bash
@@ -17,7 +24,7 @@ conda env create -y -f EPIVIR/env.yaml
 ```
 
 ## Lanzar EPIVIR
-Activar el entorno de Conda
+Activar el entorno de Conda.
 ```bash
 conda activate epivir-env
 ```

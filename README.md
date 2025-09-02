@@ -1,3 +1,49 @@
+# EPIVIR
+
+**EPIVIR** se basa en el pipeline **walkercreek**. Para más información sobre este y las modificaciones que se han implementado, consultar la sección **About this fork**.
+
+## Puesta a punto EPIVIR
+### Instalación de Conda
+
+### Descargar repositorio
+```bash
+git clone https://github.com/cvmullor/EPIVIR.git
+```
+
+### Instalación de dependencias
+Se instalarán las depencias necesarias para utilizar EPIVIR en un entorno de Conda llamado `epivir-env`.
+```bash
+conda env create -y -f EPIVIR/env.yaml
+```
+
+## Lanzar EPIVIR
+Activar el entorno de Conda
+```bash
+conda activate epivir-env
+```
+
+Generar tabla *samplesinfo.csv* que EPIVIR emplea como input, indicando la ruta al directorio con los archivos fastq de las muestras y la plataforma (illumina|nanopore) de secuenciación. La tabla se generará en el directorio de trabajo actual.
+```bash
+./EPIVIR/create_samplesinfo.sh <directorio_fastq> <plataforma>
+```
+
+Ejecutar script principal, indicando organismo (FLU|RSV), plataforma de secuenciación (illumina|nanopore), nombre de la carrera y ruta a la tabla *samplesinfo.csv*.
+```bash
+./EPIVIR/run_epivir.sh <organismo> <plataforma> <carrera> <samplesinfo>
+```
+
+Ejemplo:
+```bash
+./EPIVIR/run_epivir.sh FLU illumina 250101_Test_FLU samplesinfo.csv
+```
+
+### Resultados
++ Directorio `results/<carrera>/`: se encuentran los ficheros de resultados de cada análisis independiente realizado por EPIVIR.
++ Tabla `results/<carrera>/<fecha>_RESULTS_<carrera>.csv`: resumen del análisis por muestra. Se incluyen campos correspondientes a los metadatos del aislado o paciente, a rellenar por el hospital.
+
+---
+
+
 ## 🔁 About this fork
 
 This repository is a fork of [**walkercreek**](https://github.com/UPHL-BioNGS/walkercreek), developed by Tom Iverson ([@tives82](https://github.com/tives82)) and contributors.

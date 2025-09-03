@@ -4,7 +4,7 @@
 # Compatible con Illumina (PE) y Nanopore
 #
 # Uso:
-#   ./generate_sample_table.sh <directorio_fastq> <plataforma>
+#   ./create_samplesinfo.sh <directorio_fastq> <plataforma>
 #   plataforma = illumina | nanopore
 
 indir="$1"
